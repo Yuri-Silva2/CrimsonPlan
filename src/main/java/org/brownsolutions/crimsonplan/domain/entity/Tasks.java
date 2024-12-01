@@ -45,7 +45,7 @@ public class Tasks {
      * <p>Este campo é anotado com {@link jakarta.persistence.OneToOne} para definir um relacionamento um-para-um com a entidade {@code Task}.
      * A anotação {@link jakarta.persistence.JoinColumn} especifica que a chave estrangeira é armazenada na coluna chamada {@code previous_task_id}.</p>
      */
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "previous_tasks_id")
     private Tasks previousTasks = null;
 
@@ -60,7 +60,7 @@ public class Tasks {
      * <p>Este campo é anotado com {@link jakarta.persistence.OneToOne} para definir um relacionamento um-para-um com a entidade {@code Task}.
      * A anotação {@link jakarta.persistence.JoinColumn} especifica que a chave estrangeira é armazenada na coluna chamada {@code next_task_id}.</p>
      */
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "next_tasks_id")
     private Tasks nextTasks = null;
 
@@ -175,7 +175,7 @@ public class Tasks {
      * <p>Este campo é anotado com {@link jakarta.persistence.ManyToOne} para definir um relacionamento muitos-para-um com a entidade {@code Section}.
      * A anotação {@link jakarta.persistence.JoinColumn} especifica que a chave estrangeira é armazenada na coluna chamada {@code section_id}.</p>
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sections_id", nullable = false)
     private Sections sections;
 }
