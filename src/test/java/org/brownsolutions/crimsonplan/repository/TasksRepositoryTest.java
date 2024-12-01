@@ -35,16 +35,22 @@ public class TasksRepositoryTest {
     @Autowired
     private UsersRepository usersRepository;
 
+    private Tasks previousTasks;
+    private Tasks nextTasks;
     private Sections sections;
     private Charts charts;
     private Tasks tasks;
+    private Users reserveUsers;
     private Users users;
 
     @BeforeEach
     void setup() {
         charts = createCharts();
         sections = createSections();
+        reserveUsers = createReserveUsers();
         users = createUsers();
+        previousTasks = createPreviousTasks();
+        nextTasks = createNextTasks();
         tasks = createTasks();
     }
 
@@ -55,17 +61,56 @@ public class TasksRepositoryTest {
 
         sectionsRepository.save(sections);
 
+        usersRepository.save(reserveUsers);
         usersRepository.save(users);
 
+        tasksRepository.save(previousTasks);
+        tasksRepository.save(nextTasks);
         tasksRepository.save(tasks);
 
-        assertThat(tasksRepository.findAll()).isNotEmpty();
+        tasksRepository.updatePreviousTasks(tasks.getId(), previousTasks.getId());
+        tasksRepository.updateNextTasks(tasks.getId(), nextTasks.getId());
+        tasksRepository.updateDescription(tasks.getId(), "New Description");
+        tasksRepository.updateReserveResponsible(tasks.getId(), reserveUsers.getId());
+        tasksRepository.setTaskCompleted(tasks.getId(), true);
+
+        Optional<Tasks> task = tasksRepository.findById(tasks.getId());
+
+        assertThat(task.isPresent()).isTrue();
+
+        assertThat(task.get().getPreviousTasks()).isNotNull();
+        assertThat(task.get().getNextTasks()).isNotNull();
+        assertThat(task.get().getDescription()).isEqualTo("New Description");
+        assertThat(task.get().getReserveResponsible()).isNotNull();
+        assertThat(task.get().isCompleted()).isTrue();
     }
 
     private Tasks createTasks() {
         return Tasks.builder()
                 .title("Title")
                 .description("Description")
+                .responsible(users)
+                .completionDate(Timestamp.valueOf("2024-11-30 15:25:00"))
+                .deadlineDate(Timestamp.valueOf("2024-11-30 15:25:00"))
+                .sections(sections)
+                .build();
+    }
+
+    private Tasks createPreviousTasks() {
+        return Tasks.builder()
+                .title("Previous Title")
+                .description("Previous Description")
+                .responsible(users)
+                .completionDate(Timestamp.valueOf("2024-11-30 15:25:00"))
+                .deadlineDate(Timestamp.valueOf("2024-11-30 15:25:00"))
+                .sections(sections)
+                .build();
+    }
+
+    private Tasks createNextTasks() {
+        return Tasks.builder()
+                .title("Next Title")
+                .description("Next Description")
                 .responsible(users)
                 .completionDate(Timestamp.valueOf("2024-11-30 15:25:00"))
                 .deadlineDate(Timestamp.valueOf("2024-11-30 15:25:00"))
@@ -91,6 +136,17 @@ public class TasksRepositoryTest {
         return Users.builder()
                 .username("Murilo Castro")
                 .email("murilo_julio_castro@sitran.com.br")
+                .password("senha@2024")
+                .type(UserType.USER)
+                .biography("Random User...")
+                .created(Timestamp.valueOf("2024-11-30 15:25:00"))
+                .build();
+    }
+
+    private Users createReserveUsers() {
+        return Users.builder()
+                .username("Daniel Silva")
+                .email("daniel-dasilva70@aprimor.com")
                 .password("senha@2024")
                 .type(UserType.USER)
                 .biography("Random User...")

@@ -8,12 +8,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.Timestamp;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -83,6 +85,26 @@ public class UsersRepositoryTest {
 
     /**
      * English:
+     * Tests the behavior of {@link UsersRepository} when attempting to save duplicate users.
+     * <p>Ensures that saving a user with duplicate unique fields (e.g., email) throws a {@link DataIntegrityViolationException}.</p>
+     *
+     * Português:
+     * Testa o comportamento do {@link UsersRepository} ao tentar salvar usuários duplicados.
+     * <p>Garante que salvar um usuário com campos únicos duplicados (por exemplo, email) lança uma {@link DataIntegrityViolationException}.</p>
+     */
+    @Test
+    @DisplayName("Test Users Repository")
+    void test2() {
+        // Save the initial user
+        usersRepository.save(users);
+
+        // Attempt to save a user with duplicate unique fields and expect an exception
+        assertThatThrownBy(() -> usersRepository.save(createDuplicateUsers()))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    /**
+     * English:
      * Creates a new {@link Users} object for use in tests.
      * <p>Fill the user with sample data such as username, email, password, type, biography, and creation timestamp.</p>
      *
@@ -95,6 +117,17 @@ public class UsersRepositoryTest {
     private Users createUsers() {
         return Users.builder()
                 .username("Murilo Castro")
+                .email("murilo_julio_castro@sitran.com.br")
+                .password("senha@2024")
+                .type(UserType.USER)
+                .biography("Random User...")
+                .created(Timestamp.valueOf("2024-11-30 15:25:00"))
+                .build();
+    }
+
+    private Users createDuplicateUsers() {
+        return Users.builder()
+                .username("Murilao Castro")
                 .email("murilo_julio_castro@sitran.com.br")
                 .password("senha@2024")
                 .type(UserType.USER)
