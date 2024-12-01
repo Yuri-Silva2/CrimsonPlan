@@ -75,7 +75,7 @@ public class Sections {
      * <p>Este campo é anotado com {@link jakarta.persistence.ManyToOne} para definir um relacionamento muitos-para-um com a entidade {@code Chart}.
      * A anotação {@link jakarta.persistence.JoinColumn} especifica que a chave estrangeira é armazenada na coluna chamada {@code chart_id}, e o campo é obrigatório (nullable = false).</p>
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "charts_id", nullable = false)
     private Charts charts;
 }
